@@ -36,12 +36,15 @@ public class BeamActivity extends Activity implements
 	NfcAdapter mNfcAdapter;
 	TextView recieved;
 
+	// TextView customername;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.push);
 
 		recieved = (TextView) findViewById(R.id.HelloTag);
+
 		recieved.setText("Scan to checkout");
 
 		// Check for available NFC Adapter
@@ -122,14 +125,14 @@ public class BeamActivity extends Activity implements
 		NdefMessage msg = (NdefMessage) rawMsgs[0];
 		// record 0 contains the MIME type, record 1 is the AAR, if present
 		String payload = new String(msg.getRecords()[0].getPayload());
-		recieved.setText(payload);
-		Toast.makeText(getApplicationContext(),
-				"Message received over beam: " + payload, Toast.LENGTH_LONG)
-				.show();
-	
-	
+		recieved.setText("Checkout in progress");
+		// Toast.makeText(getApplicationContext(),
+		// "Message received over beam: " + payload, Toast.LENGTH_LONG)
+		// .show();
+
 		new MyAsyncTask().execute(payload);
 	}
+
 	private class MyAsyncTask extends AsyncTask<String, Integer, Double> {
 
 		@Override
@@ -139,50 +142,51 @@ public class BeamActivity extends Activity implements
 			return null;
 		}
 
+		protected void onPostExecute(Double result) {
+			if (recieved.getText() == "Checkout in progress") {
+				recieved.setText("Checkout complete");
+
+				Toast.makeText(getApplicationContext(), "command sent",
+						Toast.LENGTH_LONG).show();
+			}
+		}
+
 		public void postData(String valueIWantToSend) {
 			System.out.println(valueIWantToSend);
 			// Create a new HttpClient and Post Header
 			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(
-					"http://192.168.1.174/trans.php");
+			HttpPost httppost = new HttpPost("http://192.168.1.174/trans.php");
 
 			try {
-			
-				
-				int i = valueIWantToSend.indexOf(',', 1 + valueIWantToSend.indexOf(','));
+
+				int i = valueIWantToSend.indexOf(',',
+						1 + valueIWantToSend.indexOf(','));
 
 				String emailAndBasket = valueIWantToSend.substring(0, i);
 
-			
-				String items = valueIWantToSend.substring(i+1);
+				String items = valueIWantToSend.substring(i + 1);
 
-				System.out.println("Email "+emailAndBasket);
-				String[] splited=emailAndBasket.split("\\s*,\\s*");
-				System.out.println("Splited "+splited[0]);
-				System.out.println("Splited "+splited[1]);
-				
-				System.out.println("Something "+items);
+				System.out.println("Email " + emailAndBasket);
+				String[] splited = emailAndBasket.split("\\s*,\\s*");
+				System.out.println("Splited " + splited[0]);
+
+				System.out.println("Splited " + splited[1]);
+
+				System.out.println("Something " + items);
 				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-				nameValuePairs.add(new BasicNameValuePair("uid",
-					splited[0]));
-				nameValuePairs.add(new BasicNameValuePair("numItems",splited[1]));
-				//nameValuePairs.add(new BasicNameValuePair("listItems",items));
-				
-				
+				nameValuePairs.add(new BasicNameValuePair("uid", splited[0]));
+				nameValuePairs.add(new BasicNameValuePair("numItems",
+						splited[1]));
+				// nameValuePairs.add(new
+				// BasicNameValuePair("listItems",items));
+
 				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
 				// Execute HTTP Post Request and get response from the server
 				ResponseHandler<String> responseHandler = new BasicResponseHandler();
 				String response = httpclient.execute(httppost, responseHandler);
-				//String response = httpclient.execute(httppost);
-				System.out.println("Response is"+response);
-				if(response!="No"){
-					
-				}
-				else
-				{
-					//DO MAGIC
-				}
+				// String response = httpclient.execute(httppost);
+				System.out.println("Response is" + response);
 
 			} catch (ClientProtocolException e) {
 				// TODO Auto-generated catch block

@@ -15,6 +15,7 @@ public final class R {
     }
     public static final class id {
         public static final int HelloTag=0x7f060000;
+        public static final int textView1=0x7f060001;
     }
     public static final class layout {
         public static final int push=0x7f030000;
