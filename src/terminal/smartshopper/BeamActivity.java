@@ -147,16 +147,12 @@ public class BeamActivity extends Activity implements
 					"http://192.168.1.174/trans.php");
 
 			try {
-				// Send users uid to server so map they will see is personalised
-				// to them.
-				//System.out.println(valueIWantToSend);
-				
-				//message.setText(payload);
+			
 				
 				int i = valueIWantToSend.indexOf(',', 1 + valueIWantToSend.indexOf(','));
 
 				String emailAndBasket = valueIWantToSend.substring(0, i);
-//				String[] splited = 
+
 			
 				String items = valueIWantToSend.substring(i+1);
 
