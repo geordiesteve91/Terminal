@@ -33,6 +33,10 @@
                 <data android:mimeType="application/terminal.smartshopper" />
             </intent-filter>
         </activity>
+         <activity
+            android:name=".Completed"
+            android:label="@string/app_name" >
+        </activity>
     </application>
     <!-- Allow to connect with internet and to know the current network state -->
 

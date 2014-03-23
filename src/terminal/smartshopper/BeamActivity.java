@@ -148,53 +148,66 @@ public class BeamActivity extends Activity implements
 
 				Toast.makeText(getApplicationContext(), "command sent",
 						Toast.LENGTH_LONG).show();
+				Thread timer = new Thread() {
+					public void run() {
+						try {
+							sleep(5000);
+							Intent go = new Intent(BeamActivity.this, Completed.class);
+							startActivity(go);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						} finally {
+							System.out.println("Time up");
+						}
+					}
+				};
+				timer.start();
 			}
+
 		}
+	}
 
-		public void postData(String valueIWantToSend) {
-			System.out.println(valueIWantToSend);
-			// Create a new HttpClient and Post Header
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost("http://192.168.1.174/trans.php");
+	public void postData(String valueIWantToSend) {
+		System.out.println(valueIWantToSend);
+		// Create a new HttpClient and Post Header
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpPost httppost = new HttpPost("http://192.168.1.174/trans.php");
 
-			try {
+		try {
 
-				int i = valueIWantToSend.indexOf(',',
-						1 + valueIWantToSend.indexOf(','));
+			int i = valueIWantToSend.indexOf(',',
+					1 + valueIWantToSend.indexOf(','));
 
-				String emailAndBasket = valueIWantToSend.substring(0, i);
+			String emailAndBasket = valueIWantToSend.substring(0, i);
 
-				String items = valueIWantToSend.substring(i + 1);
+			String items = valueIWantToSend.substring(i + 1);
 
-				System.out.println("Email " + emailAndBasket);
-				String[] splited = emailAndBasket.split("\\s*,\\s*");
-				System.out.println("Splited " + splited[0]);
+			System.out.println("Email " + emailAndBasket);
+			String[] splited = emailAndBasket.split("\\s*,\\s*");
+			System.out.println("Splited " + splited[0]);
 
-				System.out.println("Splited " + splited[1]);
+			System.out.println("Splited " + splited[1]);
 
-				System.out.println("Something " + items);
-				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-				nameValuePairs.add(new BasicNameValuePair("uid", splited[0]));
-				nameValuePairs.add(new BasicNameValuePair("numItems",
-						splited[1]));
-				// nameValuePairs.add(new
-				// BasicNameValuePair("listItems",items));
+			System.out.println("Something " + items);
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+			nameValuePairs.add(new BasicNameValuePair("uid", splited[0]));
+			nameValuePairs.add(new BasicNameValuePair("numItems", splited[1]));
+			// nameValuePairs.add(new
+			// BasicNameValuePair("listItems",items));
 
-				httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
-				// Execute HTTP Post Request and get response from the server
-				ResponseHandler<String> responseHandler = new BasicResponseHandler();
-				String response = httpclient.execute(httppost, responseHandler);
-				// String response = httpclient.execute(httppost);
-				System.out.println("Response is" + response);
+			// Execute HTTP Post Request and get response from the server
+			ResponseHandler<String> responseHandler = new BasicResponseHandler();
+			String response = httpclient.execute(httppost, responseHandler);
+			// String response = httpclient.execute(httppost);
+			System.out.println("Response is" + response);
 
-			} catch (ClientProtocolException e) {
-				// TODO Auto-generated catch block
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-			}
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 		}
-
 	}
 
 }
