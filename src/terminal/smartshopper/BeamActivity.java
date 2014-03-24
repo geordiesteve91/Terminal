@@ -172,6 +172,7 @@ public class BeamActivity extends Activity implements
 		// Create a new HttpClient and Post Header
 		HttpClient httpclient = new DefaultHttpClient();
 		HttpPost httppost = new HttpPost("http://192.168.1.174/trans.php");
+		//Update once uploaded
 
 		try {
 
