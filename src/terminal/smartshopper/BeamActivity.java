@@ -15,6 +15,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -36,7 +38,7 @@ public class BeamActivity extends Activity implements
 	NfcAdapter mNfcAdapter;
 	TextView recieved;
 
-	// TextView customername;
+	
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +75,9 @@ public class BeamActivity extends Activity implements
 				NfcUtils.createRecord(MIME_TYPE, text.getBytes()),
 				NdefRecord.createApplicationRecord(PACKAGE_NAME) });
 		return msg;
+	}
+	@Override
+	public void onBackPressed() {
 	}
 
 	private static final int MESSAGE_SENT = 1;
@@ -126,11 +131,37 @@ public class BeamActivity extends Activity implements
 		// record 0 contains the MIME type, record 1 is the AAR, if present
 		String payload = new String(msg.getRecords()[0].getPayload());
 		recieved.setText("Checkout in progress");
-		// Toast.makeText(getApplicationContext(),
-		// "Message received over beam: " + payload, Toast.LENGTH_LONG)
-		// .show();
-
+		
+		CharSequence signature="piCpVqeI1zKkpXkh6VNulMOoxikuL/wuIKRttYs9YrA=";
+		
+		if(recieved.getText()=="Checkout in progress"&&payload.contains(signature)){
+			System.out.println("Called Async task!");
+			
 		new MyAsyncTask().execute(payload);
+		}
+		else
+		{
+			AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+					BeamActivity.this);
+			System.out.println("Incorrect basket signature");
+			alertDialogBuilder.setTitle("Basket cannot be read");
+			alertDialogBuilder.setMessage("Unsigned basket,your basket doesn't" +
+					"have a valid issuing signature," +
+					"please ask a member of staff for assistance.");
+			// set positive button: Yes message
+			alertDialogBuilder.setPositiveButton("OK",
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							
+						}
+					});
+			
+
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			// show alert
+			alertDialog.show();
+			System.out.println("Invalid basket");
+		}
 	}
 
 	private class MyAsyncTask extends AsyncTask<String, Integer, Double> {
@@ -146,18 +177,22 @@ public class BeamActivity extends Activity implements
 			if (recieved.getText() == "Checkout in progress") {
 				recieved.setText("Checkout complete");
 
-				Toast.makeText(getApplicationContext(), "command sent",
+				Toast.makeText(getApplicationContext(), "Successfully sent",
 						Toast.LENGTH_LONG).show();
 				Thread timer = new Thread() {
 					public void run() {
 						try {
 							sleep(5000);
-							Intent go = new Intent(BeamActivity.this, Completed.class);
-							startActivity(go);
+							
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						} finally {
-							System.out.println("Time up");
+							
+							Intent go = new Intent(BeamActivity.this, Completed.class);
+							startActivity(go);	
+							
+							
+							
 						}
 					}
 				};
@@ -171,8 +206,8 @@ public class BeamActivity extends Activity implements
 		System.out.println(valueIWantToSend);
 		// Create a new HttpClient and Post Header
 		HttpClient httpclient = new DefaultHttpClient();
-		HttpPost httppost = new HttpPost("http://192.168.1.174/trans.php");
-		//Update once uploaded
+		HttpPost httppost = new HttpPost("http://homepages.cs.ncl.ac.uk/s.c.g.campbell/smartshopper/map/trans.php");
+		
 
 		try {
 
@@ -190,6 +225,7 @@ public class BeamActivity extends Activity implements
 			System.out.println("Splited " + splited[1]);
 
 			System.out.println("Something " + items);
+			
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 			nameValuePairs.add(new BasicNameValuePair("uid", splited[0]));
 			nameValuePairs.add(new BasicNameValuePair("numItems", splited[1]));

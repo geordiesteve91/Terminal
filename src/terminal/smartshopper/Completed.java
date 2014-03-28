@@ -75,11 +75,12 @@ public class Completed extends Activity implements
 						public void run() {
 							try {
 								sleep(7500);
-								
+								//recieved.setText("Thank you for using Smartshopper;");
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							} finally {
-								System.out.println("Time up");
+								
+								
 								Intent go = new Intent(Completed.this,BeamActivity.class);
 								startActivity(go);
 							}
