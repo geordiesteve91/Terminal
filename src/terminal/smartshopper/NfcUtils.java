@@ -32,7 +32,8 @@ public class NfcUtils {
 	 */
 	public static NdefRecord createRecord(String mimeType, byte[] payload) {
 		byte[] mimeBytes = mimeType.getBytes(Charset.forName("US-ASCII"));
-		NdefRecord mimeRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA, mimeBytes, new byte[0], payload);
+		NdefRecord mimeRecord = new NdefRecord(NdefRecord.TNF_MIME_MEDIA,
+				mimeBytes, new byte[0], payload);
 		return mimeRecord;
 	}
 
@@ -44,7 +45,8 @@ public class NfcUtils {
 	 */
 	public static NdefMessage createMessage(String mimeType, byte[] payload) {
 		// Min API Level of 14 requires an array as the argument
-		return new NdefMessage(new NdefRecord[] { createRecord(mimeType, payload) });
+		return new NdefMessage(new NdefRecord[] { createRecord(mimeType,
+				payload) });
 	}
 
 	/**
@@ -65,7 +67,9 @@ public class NfcUtils {
 					return false;
 				}
 				if (ndef.getMaxSize() < size) {
-					Log.e(LOG_TAG, "Not writing to tag- message exceeds the max tag size of " + ndef.getMaxSize());
+					Log.e(LOG_TAG,
+							"Not writing to tag- message exceeds the max tag size of "
+									+ ndef.getMaxSize());
 					return false;
 				}
 				ndef.writeNdefMessage(message);
@@ -123,9 +127,11 @@ public class NfcUtils {
 	public static List<NdefMessage> getMessagesFromIntent(Intent intent) {
 		List<NdefMessage> intentMessages = new ArrayList<NdefMessage>();
 		String action = intent.getAction();
-		if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action) || NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
+		if (NfcAdapter.ACTION_TAG_DISCOVERED.equals(action)
+				|| NfcAdapter.ACTION_NDEF_DISCOVERED.equals(action)) {
 			Log.i(LOG_TAG, "Reading from NFC " + action);
-			Parcelable[] rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
+			Parcelable[] rawMsgs = intent
+					.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES);
 			if (rawMsgs != null) {
 				for (Parcelable msg : rawMsgs) {
 					if (msg instanceof NdefMessage) {
@@ -135,8 +141,10 @@ public class NfcUtils {
 			} else {
 				// Unknown tag type
 				byte[] empty = new byte[] {};
-				final NdefRecord record = new NdefRecord(NdefRecord.TNF_UNKNOWN, empty, empty, empty);
-				final NdefMessage msg = new NdefMessage(new NdefRecord[] { record });
+				final NdefRecord record = new NdefRecord(
+						NdefRecord.TNF_UNKNOWN, empty, empty, empty);
+				final NdefMessage msg = new NdefMessage(
+						new NdefRecord[] { record });
 				intentMessages = new ArrayList<NdefMessage>() {
 					{
 						add(msg);
@@ -154,8 +162,9 @@ public class NfcUtils {
 	 * @return
 	 */
 	public static PendingIntent getPendingIntent(Activity context) {
-		return PendingIntent.getActivity(context, 0,
-				new Intent(context, context.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+		return PendingIntent.getActivity(context, 0, new Intent(context,
+				context.getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
+				0);
 	}
 
 }

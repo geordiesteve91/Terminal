@@ -1,6 +1,7 @@
 package terminal.smartshopper;
 
-
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -13,14 +14,16 @@ import android.nfc.NfcEvent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Base64;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Completed extends Activity implements
-		CreateNdefMessageCallback, OnNdefPushCompleteCallback {
+public class Completed extends Activity implements CreateNdefMessageCallback,
+		OnNdefPushCompleteCallback {
 
 	NfcAdapter mNfcAdapter;
 	TextView recieved;
+	String terminalSig = "Valid Terminal";
 
 	// TextView customername;
 
@@ -28,9 +31,17 @@ public class Completed extends Activity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.push);
-		recieved=(TextView) findViewById(R.id.textView1);
+		recieved = (TextView) findViewById(R.id.textView1);
+
 		recieved.setText("Scan your device to confirm checkout!");
-		
+		try {
+			terminalSig = SHA256(terminalSig);
+			System.out.println("Terminal signature is" + terminalSig);
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		// Check for available NFC Adapter
 		mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
 		if (mNfcAdapter == null) {
@@ -44,6 +55,16 @@ public class Completed extends Activity implements
 		}
 	}
 
+	public static String SHA256(String text) throws NoSuchAlgorithmException {
+
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+		md.update(text.getBytes());
+		byte[] digest = md.digest();
+
+		return Base64.encodeToString(digest, Base64.DEFAULT);
+	}
+
 	private static final String MIME_TYPE = "application/smartshopper.menu";
 	private static final String PACKAGE_NAME = "smartshopper.menu";
 
@@ -52,7 +73,7 @@ public class Completed extends Activity implements
 	 */
 	@Override
 	public NdefMessage createNdefMessage(NfcEvent event) {
-		String text = "Checkout successful";
+		String text = terminalSig;
 		NdefMessage msg = new NdefMessage(new NdefRecord[] {
 				NfcUtils.createRecord(MIME_TYPE, text.getBytes()),
 				NdefRecord.createApplicationRecord(PACKAGE_NAME) });
@@ -67,26 +88,24 @@ public class Completed extends Activity implements
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
 			case MESSAGE_SENT:
-				Toast.makeText(getApplicationContext(), "Message sent!",
-						Toast.LENGTH_LONG).show();
-				
-				if(recieved.getText()!=null){
+
+				if (recieved.getText() != null) {
 					Thread timer = new Thread() {
 						public void run() {
 							try {
 								sleep(7500);
-								//recieved.setText("Thank you for using Smartshopper;");
+								// recieved.setText("Thank you for using Smartshopper;");
 							} catch (InterruptedException e) {
 								e.printStackTrace();
 							} finally {
-								
-								
-								Intent go = new Intent(Completed.this,BeamActivity.class);
+
+								Intent go = new Intent(Completed.this,
+										BeamActivity.class);
 								startActivity(go);
 							}
 						}
 					};
-				timer.start();
+					timer.start();
 				}
 				break;
 			}
@@ -113,9 +132,7 @@ public class Completed extends Activity implements
 	public void onResume() {
 		super.onResume();
 		// Check to see that the Activity started due to an Android Beam
-		
-	}
 
-	
+	}
 
 }
